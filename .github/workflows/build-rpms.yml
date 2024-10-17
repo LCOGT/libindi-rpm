@@ -45,7 +45,7 @@ jobs:
           dnf -y install libstdc++-devel
           dnf -y install rpm-build rpmdevtools
           dnf -y install epel-release
-          dnf --enablerepo=devel install -y libev-devel gsl-devel libjpeg-turbo-devel fftw-devel cfitsio-devel
+          dnf --enablerepo=devel install -y libev-devel gsl-devel libjpeg-turbo-devel fftw-devel cfitsio-devel zlib-devel
           dnf -y install https://www.rpmfind.net/linux/fedora/linux/releases/39/Everything/x86_64/os/Packages/l/libnova-0.15.0-22.fc39.x86_64.rpm
           dnf -y install https://www.rpmfind.net/linux/fedora/linux/releases/39/Everything/x86_64/os/Packages/l/libnova-devel-0.15.0-22.fc39.x86_64.rpm
           rpmdev-setuptree
