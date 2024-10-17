@@ -1,3 +1,5 @@
+%define _udevrulesdir /usr/lib/udev/rules.d
+
 %global forgeurl    https://github.com/indilib/indi
 Version: 2.1.0
 %define __cmake_in_source_build %{_vpath_builddir}
