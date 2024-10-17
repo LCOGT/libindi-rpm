@@ -36,7 +36,7 @@ jobs:
           (github.event_name == 'workflow_dispatch' && inputs.full_build) ||
           github.ref == 'refs/heads/main'
         run: |
-          dnf -u update
+          dnf -y update
           dnf -y install gcc-fortran
           dnf -y install make
           dnf -y install cmake
