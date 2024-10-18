@@ -34,7 +34,7 @@ jobs:
           github.ref == 'refs/heads/main'
         run: |
           dnf -y update
-          dnf -y install gcc-fortran make cmake automake gcc-c++ \
+          dnf -y --enablerepo=devel install gcc-fortran make cmake automake gcc-c++ \
             libstdc++-devel rpm-build rpmdevtools epel-release \
             libev-devel gsl-devel libjpeg-turbo-devel fftw-devel \
             cfitsio-devel zlib-devel libusbx-devel curl-devel
