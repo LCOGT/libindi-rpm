@@ -21,15 +21,12 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      # Quick validation for PRs to save minutes
       - name: Quick spec validation
         if: github.event_name == 'pull_request'
         run: |
-          sudo apt-get update
-          sudo apt-get install -y rpm rpmlint
+          dnf -y install rpm rpmlint
           rpmlint *.spec
 
-      # Full build only on tags, manual trigger with full_build, or main branch
       - name: Full RPM Build
         if: |
           startsWith(github.ref, 'refs/tags/') ||
@@ -37,36 +34,37 @@ jobs:
           github.ref == 'refs/heads/main'
         run: |
           dnf -y update
-          dnf -y install gcc-fortran
-          dnf -y install make
-          dnf -y install cmake
-          dnf -y install automake
-          dnf -y install gcc-c++
-          dnf -y install libstdc++-devel
-          dnf -y install rpm-build rpmdevtools
-          dnf -y install epel-release
-          dnf --enablerepo=devel install -y libev-devel gsl-devel libjpeg-turbo-devel fftw-devel cfitsio-devel zlib-devel libusbx-devel curl-devel
+          dnf -y install gcc-fortran make cmake automake gcc-c++ \
+            libstdc++-devel rpm-build rpmdevtools epel-release \
+            libev-devel gsl-devel libjpeg-turbo-devel fftw-devel \
+            cfitsio-devel zlib-devel libusbx-devel curl-devel
+          
           dnf -y install https://www.rpmfind.net/linux/fedora/linux/releases/39/Everything/x86_64/os/Packages/l/libnova-0.15.0-22.fc39.x86_64.rpm
           dnf -y install https://www.rpmfind.net/linux/fedora/linux/releases/39/Everything/x86_64/os/Packages/l/libnova-devel-0.15.0-22.fc39.x86_64.rpm
+          
           rpmdev-setuptree
-          cp *.spec ~/rpmbuild/SPECS/
-    
-          for spec in ~/rpmbuild/SPECS/*.spec; do
+          cp *.spec /github/home/rpmbuild/SPECS/
+          
+          for spec in /github/home/rpmbuild/SPECS/*.spec; do
             spectool -g -R "$spec"
             rpmbuild -ba "$spec"
           done
+          
+          # Debug: List all built RPMs
+          echo "Built RPMs:"
+          find /github/home/rpmbuild -name "*.rpm" -ls
 
       - name: Create Release
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            ~/rpmbuild/RPMS/*/*.rpm
-            ~/rpmbuild/SRPMS/*.rpm
+            /github/home/rpmbuild/RPMS/*/*.rpm
+            /github/home/rpmbuild/SRPMS/*.rpm
+          fail_on_unmatched_files: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # Upload artifacts only for full builds
       - name: Upload RPMs as artifacts
         if: |
           startsWith(github.ref, 'refs/tags/') ||
@@ -76,7 +74,6 @@ jobs:
         with:
           name: rpms
           path: |
-            ~/rpmbuild/RPMS/*/*.rpm
-            ~/rpmbuild/SRPMS/*.rpm
-          retention-days: 5  # Reduce storage usage by keeping artifacts for less time
-
+            /github/home/rpmbuild/RPMS/*/*.rpm
+            /github/home/rpmbuild/SRPMS/*.rpm
+          retention-days: 5
